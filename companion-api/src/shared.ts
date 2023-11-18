@@ -7,18 +7,18 @@ import { subscribeToKey } from "./waku.js";
 import { readFile, writeFile } from "node:fs/promises";
 
 // Types
-type Key = {
+export type Key = {
   privateKey: Uint8Array;
   publicKey: Uint8Array; // remote public key (not linked to private key)
   metadata: Metadata;
 };
 
-type TempKey = {
+export type TempKey = {
   privateKey: Uint8Array;
   expiry: number;
 };
 
-type Metadata = {
+export type Metadata = {
   name: string;
 };
 
@@ -45,9 +45,8 @@ const writeKeys = async (keys: Record<string, Key | undefined>) => {
   await writeFile("keys.json", data);
 };
 
-// TODO: Store locally
-const keys: Record<string, Key | undefined> = await loadKeys();
-const tempKeys: Record<string, TempKey | undefined> = {};
+export const keys: Record<string, Key | undefined> = await loadKeys();
+export const tempKeys: Record<string, TempKey | undefined> = {};
 
 // Expires after 5 seconds
 // TODO: Listen to registration topic for that key
