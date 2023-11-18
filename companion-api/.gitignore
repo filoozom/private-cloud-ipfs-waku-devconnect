@@ -1,0 +1,4 @@
+node_modules
+/ipfs-store
+/dist
+/keys.json
