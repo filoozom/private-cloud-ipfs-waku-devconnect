@@ -34,9 +34,15 @@
 	};
 
 	onMount(async () => {
-		const result = await fetch('http://localhost:8080/pairing');
-		const data = await result.json();
-		publicKey = data.publicKey;
+		while (true) {
+			try {
+				const result = await fetch('http://localhost:8080/pairing');
+				const data = await result.json();
+				publicKey = data.publicKey;
+			} finally {
+				await new Promise((resolve) => setTimeout(resolve, 1000));
+			}
+		}
 	});
 
 	onMount(async () => {
@@ -44,7 +50,7 @@
 			try {
 				await fetchRegistered();
 			} finally {
-				await new Promise((resolve) => setTimeout(resolve, 5000));
+				await new Promise((resolve) => setTimeout(resolve, 1000));
 			}
 		}
 	});
