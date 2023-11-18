@@ -5,6 +5,7 @@ import {
 import { createHash } from "node:crypto";
 import { subscribeToKey } from "./waku.js";
 import { readFile, writeFile } from "node:fs/promises";
+import { equals } from "uint8arrays";
 
 // Types
 export type Key = {
@@ -46,17 +47,21 @@ const writeKeys = async (keys: Record<string, Key | undefined>) => {
 };
 
 export const keys: Record<string, Key | undefined> = await loadKeys();
-export const tempKeys: Record<string, TempKey | undefined> = {};
+export let tempKey: TempKey | undefined;
 
 // Expires after 5 seconds
 // TODO: Listen to registration topic for that key
 export const generateTempKey = () => {
+  if (tempKey) {
+    return toHex(getPublicKey(tempKey.privateKey));
+  }
+
   const privateKey = generatePrivateKey();
   const publicKey = getPublicKey(privateKey);
   const expiry = Date.now() + 5 * 60 * 1000;
   const hex = toHex(publicKey);
 
-  tempKeys[hex] = { privateKey, expiry };
+  tempKey = { privateKey, expiry };
   subscribeToKey(privateKey);
   return hex;
 };
@@ -69,10 +74,9 @@ export const register = (
 ) => {
   const localKey = toHex(localKeyArray);
   const remoteKey = toHex(remoteKeyArray);
-  const tempKey = tempKeys[localKey];
 
-  if (!tempKey) {
-    throw new Error("Key not found");
+  if (!tempKey || !equals(localKeyArray, getPublicKey(tempKey.privateKey))) {
+    throw new Error("Invalid key");
   }
 
   if (tempKey.expiry < Date.now()) {
@@ -84,7 +88,7 @@ export const register = (
     publicKey: fromHex(remoteKey),
     metadata,
   };
-  delete tempKeys[localKey];
+  tempKey = undefined;
 
   writeKeys(keys);
 };
@@ -102,7 +106,7 @@ export const isRegistered = (localKey: Uint8Array) => {
 };
 
 export const isTemporaryKey = (localKey: Uint8Array) => {
-  return !!tempKeys[toHex(localKey)];
+  return tempKey && equals(localKey, getPublicKey(tempKey.privateKey));
 };
 
 // On start, subscribe to all keys
