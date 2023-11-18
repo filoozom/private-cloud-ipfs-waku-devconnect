@@ -23,6 +23,16 @@
 	let publicKey = '';
 	let registered: Registered[] = [];
 
+	const fetchRegistered = async () => {
+		const result = await fetch('http://localhost:8080/registration');
+		registered = await result.json();
+	};
+
+	const revoke = async (publicKey: string) => {
+		await fetch(`http://localhost:8080/registration/${publicKey}`, { method: 'DELETE' });
+		await fetchRegistered();
+	};
+
 	onMount(async () => {
 		const result = await fetch('http://localhost:8080/pairing');
 		const data = await result.json();
@@ -32,8 +42,7 @@
 	onMount(async () => {
 		while (true) {
 			try {
-				const result = await fetch('http://localhost:8080/registered');
-				registered = await result.json();
+				await fetchRegistered();
 			} finally {
 				await new Promise((resolve) => setTimeout(resolve, 5000));
 			}
@@ -50,12 +59,19 @@
 	</div>
 {/if}
 
-<ul>
-	{#each registered as peer}
-		<li>
-			{peer.metadata.name}: local {formatPublicKey(peer.localPublicKey)}, remote {formatPublicKey(
-				peer.remotePublicKey
-			)} (<a href="#">Revoke</a>)
-		</li>
-	{/each}
-</ul>
+<div style:margin-top="32px">
+	Registered peers:
+	{#if registered.length}
+		<ul>
+			{#each registered as peer}
+				<li>
+					{peer.metadata.name}: local {formatPublicKey(peer.localPublicKey)}, remote {formatPublicKey(
+						peer.remotePublicKey
+					)} (<a role="button" href="#" on:click={() => revoke(peer.localPublicKey)}>Revoke</a>)
+				</li>
+			{/each}
+		</ul>
+	{:else}
+		none
+	{/if}
+</div>
