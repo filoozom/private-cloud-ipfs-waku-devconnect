@@ -38,6 +38,7 @@
 		return key;
 	};
 
+	// TODO: Check registration (in case of revoke)
 	let registered = (browser && localStorage.getItem('registered') === 'true') ?? false;
 	let cid = '';
 
