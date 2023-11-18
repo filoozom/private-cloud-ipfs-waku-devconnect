@@ -16,7 +16,7 @@ import {
 import { IFilterSubscription } from "@waku/sdk";
 import { getNode } from "./node.js";
 import { equals } from "uint8arrays/equals";
-import { helia, unixfs } from "./helia.js";
+import { unixfs } from "./helia.js";
 
 let subscription: IFilterSubscription | undefined;
 
@@ -44,8 +44,15 @@ const getSubscription = async () => {
     return subscription;
   }
 
-  const node = await getNode();
-  return (subscription = await node.filter.createSubscription());
+  // TODO: Clean this up, it's somewhat of a hack for the bad hackathon wifi
+  while (true) {
+    try {
+      const node = await getNode();
+      return (subscription = await node.filter.createSubscription());
+    } catch (err) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+  }
 };
 
 const decodePayload = (message: DecodedMessage) => {
