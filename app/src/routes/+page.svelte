@@ -58,6 +58,7 @@
 	let remoteKey = loadedRemoteKey ? toHex(loadedRemoteKey) : '';
 	let privateKey = loadPrivateKey();
 	let files: any;
+	let name: '';
 
 	onMount(async () => {
 		node = await getNode();
@@ -72,7 +73,7 @@
 			return;
 		}
 
-		await doPairing(fromHex(remoteKey), privateKey);
+		await doPairing(fromHex(remoteKey), privateKey, name);
 		localStorage.setItem('registered', 'true');
 	};
 
@@ -102,7 +103,8 @@
 		<p>Connected</p>
 
 		<form on:submit|preventDefault={pair}>
-			<input type="text" bind:value={remoteKey} />
+			<p>Remote public key: <input type="text" bind:value={remoteKey} /></p>
+			<p>Name: <input type="text" bind:value={name} /></p>
 			<button type="submit">Pair</button>
 		</form>
 	</div>

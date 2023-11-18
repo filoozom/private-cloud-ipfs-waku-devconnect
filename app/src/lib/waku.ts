@@ -46,7 +46,7 @@ const getEncoder = async (remoteKey: Uint8Array, privateKey: Uint8Array) => {
 	});
 };
 
-export const doPairing = async (remoteKey: Uint8Array, privateKey: Uint8Array) => {
+export const doPairing = async (remoteKey: Uint8Array, privateKey: Uint8Array, name: string) => {
 	const topic = await getTopic(remoteKey);
 	console.log(
 		`Pairing with ${toHex(remoteKey)} on ${topic} with public key ${toHex(
@@ -56,7 +56,7 @@ export const doPairing = async (remoteKey: Uint8Array, privateKey: Uint8Array) =
 
 	const node = await getNode();
 	const encoder = await getEncoder(remoteKey, privateKey);
-	const payload = encodePayload({ name: 'Philippe Laptop' });
+	const payload = encodePayload({ name });
 
 	await subscribeToKey(remoteKey, privateKey);
 	await node.lightPush.send(encoder, { payload });
