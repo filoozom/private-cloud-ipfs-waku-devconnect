@@ -1,5 +1,5 @@
 import fastify from "fastify";
-import { Key, generateTempKey, keys, toHex } from "./shared.js";
+import { Key, deleteKey, generateTempKey, keys, toHex } from "./shared.js";
 import { getNode } from "./node.js";
 import cors from "@fastify/cors";
 import { getPublicKey } from "@waku/message-encryption";
@@ -22,7 +22,7 @@ server.get("/registration", async () => {
 
 server.delete("/registration/:publicKey", async ({ params }) => {
   // @ts-expect-error TODO: Set up TS / schemas
-  delete keys[params.publicKey];
+  deleteKey(params.publicKey);
   return { success: true };
 });
 

@@ -109,6 +109,11 @@ export const isTemporaryKey = (localKey: Uint8Array) => {
   return tempKey && equals(localKey, getPublicKey(tempKey.privateKey));
 };
 
+export const deleteKey = async (localPublicKey: string) => {
+  delete keys[localPublicKey];
+  await writeKeys(keys);
+};
+
 // On start, subscribe to all keys
 console.log({ keys });
 for (const key of Object.values(keys)) {
